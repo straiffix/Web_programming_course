@@ -36,6 +36,7 @@ const addValidation = (input, validationCheck, errorMessage, validationChangeHan
 
 function attach_events() {
     const everythingAlright = new Array(6).fill(true);
+    const onlyLettersRegex = /^[a-zA-Z]+$/;
 
     const validationStatusChanged = (i, newValue) => {
         const submit = document.getElementById("submit");
@@ -47,14 +48,14 @@ function attach_events() {
 
     addValidation(
         document.getElementById("textname"),
-        (value) => !/\d/.test(value),
+        (value) => onlyLettersRegex.test(value),
         "Wrong name. Should contain only letters",
         (valid) => validationStatusChanged(0, valid)
     );
 
     addValidation(
         document.getElementById("textlastname"),
-        (value) => !/\d/.test(value),
+        (value) => onlyLettersRegex.test(value),
         "Wrong name. Should contain only letters",
         (valid) => validationStatusChanged(1, valid)
     );
