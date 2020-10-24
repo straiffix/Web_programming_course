@@ -35,14 +35,15 @@ const addValidation = (input, validationCheck, errorMessage, validationChangeHan
 }
 
 function attach_events() {
-    var everythingAlright = new Array(6).fill(true);
-    var submit = document.getElementById("submit");
+    const everythingAlright = new Array(6).fill(true);
 
     const validationStatusChanged = (i, newValue) => {
+        const submit = document.getElementById("submit");
+
         everythingAlright[i] = newValue;
         const ok = everythingAlright.every((v) => v === true);
         submit.disabled = !ok;
-    }
+    };
 
     addValidation(
         document.getElementById("textname"),
