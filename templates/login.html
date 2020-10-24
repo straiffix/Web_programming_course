@@ -1,0 +1,48 @@
+<!doctype>
+<html>
+    <head>
+        <script src="/static/main.js" defer></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    </head>
+    <body>
+    
+        <header>Some basic header, can be something more interesting
+        </header>
+        
+        
+        
+        <div class = "navbar">
+            <a href="/">Main page</a>
+            <a class="active" href="/sender/sign_up"">Login</a>
+        </div>
+    
+        <section>
+            <form method="POST" action="https://infinite-hamlet-29399.herokuapp.com/register" >
+        <ul>
+            <li><input type="text" id = "textname" name="firstname" placeholder="Name"/></li>
+            <p id="alert_name" hidden></p>
+            <li><input type="text" id = "textlastname" name="lastname" placeholder="Surname"/></li>
+            <p id="alert_lastname" hidden></p>
+            <li><input type="text" id = "textusername" name="username" placeholder="Username"/></li>
+            <p id="alert_username" hidden></p>
+            <li><input type="password" id = "textpass" name="password" placeholder="Password"/></li>
+            <p id="alert_pass" hidden></p>
+            <li><input type="password" id = "textpass_second" name="password_second" placeholder="Repeat password"/></li>
+            <p id="alert_pass2" hidden></p>
+            <li><input type="file" id = "avatar" name ="avatar"></li>
+            <p id="alert_avatar" hidden></p>
+             <li><input type="submit" id = "submit" name="submit" placeholder="Submit"/></li>      
+        </ul>
+        </form>
+        
+        </section>
+        
+        <footer>
+            Mara Kruk, here will be my github
+        </footer>
+    
+    
+        
+    </body>
+</html>
