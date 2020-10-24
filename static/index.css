@@ -1,11 +1,19 @@
+body{
+    margin: auto;
+    width: 70%;
 
-
+}
 header {
   padding: 60px;
   text-align: center;
   background: #1abc9c;
   color: white;
   font-size: 30px;
+}
+
+section{
+    padding: 60px;
+
 }
 
 footer {
@@ -17,6 +25,7 @@ footer {
   color: white;
   text-align: center;
 }
+
 
 
 /* Add a black background color to the top navigation */
