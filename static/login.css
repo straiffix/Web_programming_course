@@ -1,26 +1,27 @@
 .alright {
-    background-color: #8EEC7D;
+  background-color: #8eec7d;
 }
 
 .error {
-    background-color: #EC7D7D;
+  background-color: #ec7d7d;
 }
 
-section{
-    text-align: center;
+section {
+  text-align: center;
 }
 
-form{
-    margin-left: auto;
-    margin-right: auto;
-    width: 90%;
+form {
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
 }
 
-ul{
-    list-style-type: none;
+ul {
+  list-style-type: none;
 }
 
-input[type=text], select {
+input[type="text"],
+select {
   width: 40%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -30,7 +31,8 @@ input[type=text], select {
   box-sizing: border-box;
 }
 
-input[type=password], select {
+input[type="password"],
+select {
   width: 40%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -40,7 +42,8 @@ input[type=password], select {
   box-sizing: border-box;
 }
 
-input[type=file], select {
+input[type="file"],
+select {
   width: 40%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -50,9 +53,9 @@ input[type=file], select {
   box-sizing: border-box;
 }
 
-input[type=submit] {
+input[type="submit"] {
   width: 40%;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 14px 20px;
   margin: 8px 0;
@@ -61,8 +64,12 @@ input[type=submit] {
   cursor: pointer;
 }
 
-input[type=submit]:hover {
+input[type="submit"]:hover {
   background-color: #45a049;
+}
+
+input[type="submit"]:disabled {
+  background-color: #a4a4a4;
 }
 /*div {
   border-radius: 5px;
