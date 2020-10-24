@@ -20,19 +20,33 @@
         <section>
             <form method="POST" action="https://infinite-hamlet-29399.herokuapp.com/sender/register" >
         <ul>
-            <li><input type="text" id = "textname" name="firstname" placeholder="Name"/></li>
-            <p id="alert_name" hidden></p>
-            <li><input type="text" id = "textlastname" name="lastname" placeholder="Surname"/></li>
-            <p id="alert_lastname" hidden></p>
-            <li><input type="text" id = "textusername" name="username" placeholder="Username"/></li>
-            <p id="alert_username" hidden></p>
-            <li><input type="password" id = "textpass" name="password" placeholder="Password"/></li>
-            <p id="alert_pass" hidden></p>
-            <li><input type="password" id = "textpass_second" name="password_second" placeholder="Repeat password"/></li>
-            <p id="alert_pass2" hidden></p>
-            <li><input type="file" id = "avatar" name ="avatar"></li>
-            <p id="alert_avatar" hidden></p>
-             <li><input type="submit" id = "submit" name="submit" placeholder="Submit"/></li>      
+            <li>
+                <input type="text" id = "textname" name="firstname" placeholder="Name"/>
+                <p data-alert hidden></p>
+            </li>
+            <li>
+                <input type="text" id = "textlastname" name="lastname" placeholder="Surname"/>
+                <p data-alert hidden></p>
+            </li>
+            <li>
+                <input type="text" id = "textusername" name="username" placeholder="Username"/>
+                <p data-alert hidden></p>  
+            </li>
+            <li>
+                <input type="password" id = "textpass" name="password" placeholder="Password"/>
+                <p id="alert_pass" data-alert hidden></p>
+            </li>
+            <li>
+                <input type="password" id = "textpass_second" name="password_second" placeholder="Repeat password"/>
+                <p id="alert_pass2" data-alert hidden></p>
+            </li>
+            <li>
+                <input type="file" id = "avatar" name ="avatar">
+                <p data-alert hidden></p>
+            </li>
+            <li>
+                <input type="submit" id = "submit" name="submit" placeholder="Submit"/>
+            </li>      
         </ul>
         </form>
         
