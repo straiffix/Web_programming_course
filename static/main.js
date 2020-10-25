@@ -58,7 +58,8 @@ function attach_events(){
             let OK = 200;
             if (xhr.readyState == DONE){
                 if(xhr.status == OK){
-                    console.log(xhr.responseText.json()[username]);
+                    let response = xhr.responseText.json();
+                    console.log(response);
                     alert_username.style.display = "block";
                     username.className = "error";
                     alert_username.innerHTML = "Taken";
