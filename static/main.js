@@ -58,7 +58,7 @@ function attach_events(){
             let OK = 200;
             if (xhr.readyState == DONE){
                 if(xhr.status == OK){
-                    let response = xhr.responseText.json();
+                    let response = JSON.parse(xhr.responseText);
                     console.log(response);
                     alert_username.style.display = "block";
                     username.className = "error";
