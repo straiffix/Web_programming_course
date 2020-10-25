@@ -87,6 +87,33 @@ function attach_events(){
         
     });
     
+    const alert_pass2 = document.getElementById("alert_pass2");
+    
+    const pass1 = document.getElementById("textpass");
+    const pass2 = document.getElementById("textpass_second");
+    
+    pass2.addEventListener("change", function(ev){
+        let originValue = pass1.value;
+        let newValue = pass2.value;
+        if(!(newValue === originValue)){
+            alert_pass2.style.display = "block";
+            alert_pass2.innerHTML = 'Password does not match';
+            pass2.className = 'error';
+            everythingAlright[4] = false;
+            submit.setAttribute("disabled", "");
+        } else {
+            alert_pass2.style.display = "none";
+            alert_pass2.className = "alright";
+            everythingAlright[4] = true;
+            if(everythingAlright.every(function(check){return check===true})){
+                    submit.removeAttribute("disabled");
+                }
+        
+        }
+    
+    })
+    
+    
     
     const alert_avatar = document.getElementById("alert_avatar");
     const avatar = document.getElementById("avatar");
