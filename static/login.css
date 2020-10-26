@@ -1,3 +1,11 @@
+.alert_alright {
+    display: none;
+}
+
+.alert_error {
+    display: block;
+}
+
 .alright {
     background-color: #8EEC7D;
 }

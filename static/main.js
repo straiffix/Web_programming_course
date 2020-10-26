@@ -1,5 +1,6 @@
 const everythingAlright = new Array(6).fill(false);
-const regexLetters = /^[a-zA-Z]+$/;
+const regexLettersSmall = /^[a-z]+$/;
+const regexLettersBig = /^[A-Z]+$/;
 const submit = document.getElementById("submit");
 var originValue = null;
 
@@ -12,14 +13,14 @@ function checkValide(
     if (!valideFunction(element.value)){
         
         element.className = "error";
-        alert_element.style.display = "block";
+        alert_element.className = "alert_error";
         alert_element.innerText = message;
         everythingAlright[count] = false;
         submit.setAttribute("disabled", "");
     }
     else{
         element.className = "alright";
-        alert_element.style.display = "none";
+        alert_element.className = "alert_alright";
         everythingAlright[count] = true;
         if(everythingAlright.every((v) => v === true)){
             submit.removeAttribute("disabled");
@@ -29,10 +30,19 @@ function checkValide(
 };
 
 function valideName(value){
-     return regexLetters.test(value);
+     if (value.length > 40)
+         return false;
+     if (!regexLettersBig.test(value[0]))
+         return false;
+     if (!regexLettersSmall.test(value.slice(1, value.length)))
+         return false; 
+     return true;
+
     };
 
 function valideUsername(value){
+        if (!regexLettersSmall.test(value) || value.length < 3 || value.length > 40)
+            return false;
         let xhr = new XMLHttpRequest();
         let request = 'https://infinite-hamlet-29399.herokuapp.com/check/' + value;
         xhr.onreadystatechange = function(){
@@ -67,7 +77,7 @@ function valideGender(value){
 }
 
 function validePassword(value){
-    return value.length >= 8 ? true : false;
+    return ((value.length >= 8) && (value.length <=40)) ? true : false;
 };
 
 function valideSecondPassword(value){
@@ -87,7 +97,6 @@ function valideAvatar(value){
 
 
 
-
 function attach_events(){
 
     everythingAlright[3] = true;
@@ -95,7 +104,7 @@ function attach_events(){
     const alert_name = document.getElementById("alert_name");
     const firstname = document.getElementById("firstname");
     firstname.addEventListener("change", function(ev){
-        let message = "Name can contain only letters";
+        let message = "Name should start with big letter and contain only letters";
         checkValide(firstname, 0, alert_name, message, valideName);
     });
 
@@ -103,7 +112,7 @@ function attach_events(){
     const alert_lastname = document.getElementById("alert_lastname");
     const lastname = document.getElementById("lastname");
     lastname.addEventListener("change", function(ev){
-        let message = "Last name can contain only letters";
+        let message = "Last name should start with big letter and contain only letters";
         checkValide(lastname, 1, alert_lastname, message, valideName);
     });
    
@@ -112,23 +121,21 @@ function attach_events(){
     const username = document.getElementById("login");
     username.addEventListener("change", function(ev){
         let message = "Username already taken";
+        if (!regexLettersSmall.test(username.value))
+            message = "Username should contain only small letters"
+        if(username.value.length < 3)
+            message = "Short username"
         checkValide(username, 2, alert_username, message, valideUsername);
     });
     
     everythingAlright[3] = true;
-    /*const alert_gender = document.getElementById("alert_gender");
-    const gender = document.getElementById("gender");
-    gender.addEventListener("change", function(ev){
-        let message = "Gender not chosen";
-        checkValide(gender, 3, alert_gender, message, valideGender);
-    });*/
     
     const alert_pass = document.getElementById("alert_pass");
     const pass1 = document.getElementById("password");
     pass1.addEventListener("change", function(ev){
         originValue = pass1.value;
-       let message = "Short password";
-       checkValide(pass1, 4, alert_pass, message, validePassword); 
+        let message = "Password should contain at least 8 symbols and less than 40";
+        checkValide(pass1, 4, alert_pass, message, validePassword); 
     });
     
     const alert_pass2 = document.getElementById("alert_pass2");
