@@ -111,7 +111,8 @@ function attach_events(){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
                     if (response[value] === "available"){
-                        checkValide(username, 2, alert_username, message, func(){return true});
+                        let x = true;
+                        checkValide(username, 2, alert_username, message, function (x) {return x;});
                         /*alert_username.style.display = "none";
                         username.className = "alright";
                         everythingAlright[2] = true;
