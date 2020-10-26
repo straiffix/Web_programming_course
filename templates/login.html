@@ -18,7 +18,7 @@
         </div>
     
         <section>
-            <form method="POST" action="https://infinite-hamlet-29399.herokuapp.com/sender/register" >
+            <form method="POST" action="https://infinite-hamlet-29399.herokuapp.com/sender/register" enctype="multipart/form-data">
         <ul>
             <li><input type="text" id = "firstname" name="firstname" placeholder="Name"/></li>
             <p id="alert_name" hidden></p>
@@ -30,7 +30,7 @@
             <p id="alert_pass" hidden></p>
             <li><input type="password" id = "password_second" name="password_second" placeholder="Repeat password"/></li>
             <p id="alert_pass2" hidden></p>
-            <li><input type="file" id = "photo" name ="photo" enctype = "multipart/form-data"></li>
+            <li><input type="file" id = "photo" name ="photo"></li>
             <p id="alert_avatar" hidden></p>
              <li><input type="submit" id = "submit" name= "submit" placeholder="Submit" disabled/></li>      
         </ul>

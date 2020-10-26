@@ -12,7 +12,7 @@ function attach_events(){
     const everythingAlright = new Array(6).fill(false);
     const submit = document.getElementById("submit");
     const regexLetters = /^[a-zA-Z]+$/;
-    
+    everythingAlright[3] = true;
 
     const alert_name = document.getElementById("alert_name");
     
