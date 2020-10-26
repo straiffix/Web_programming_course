@@ -12,8 +12,7 @@ function checkValide(
         valideFunction){
     if (!valideFunction(element.value)){
         markError(element, alert_element, count, message);
-    }
-    else{
+    } else {
         markAlright(element, alert_element, count);
     }
 
@@ -26,8 +25,7 @@ function markError(element, alert_element, count, message){
         alert_element.innerText = message;
         everythingAlright[count] = false;
         submit.setAttribute("disabled", "");
-
-}
+};
 
 function markAlright(element, alert_element, count) {
         element.className = "alright";
@@ -36,8 +34,7 @@ function markAlright(element, alert_element, count) {
         if(everythingAlright.every((v) => v === true)){
             submit.removeAttribute("disabled");
         }
-
-}
+};
 
 function valideName(value){
      if (value.length > 40)
@@ -48,7 +45,7 @@ function valideName(value){
          return false; 
      return true;
 
-    };
+};
 
 
 function valideGender(value){
@@ -57,7 +54,7 @@ function valideGender(value){
     } else {
         return false;
     }
-}
+};
 
 function validePassword(value){
     return ((value.length >= 8) && (value.length <=40)) ? true : false;
@@ -153,7 +150,7 @@ function attach_events(){
     });
     
 
-}
+};
 
 
-attach_events() 
+attach_events();
