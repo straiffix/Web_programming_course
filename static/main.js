@@ -41,8 +41,7 @@ function valideName(value){
     };
 
 function valideUsername(value){
-        if (!regexLettersSmall.test(value) || value.length < 3 || value.length > 40)
-            return false;
+        
         let xhr = new XMLHttpRequest();
         let request = 'https://infinite-hamlet-29399.herokuapp.com/check/' + value;
         xhr.onreadystatechange = function(){
@@ -51,6 +50,9 @@ function valideUsername(value){
             if (xhr.readyState == DONE){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
+                    console.log(response);
+                    if (!regexLettersSmall.test(value) || value.length < 3 || value.length > 40)
+                        return false;
                     if (response[value] === "available"){
                         return true;
                 }
