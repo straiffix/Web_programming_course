@@ -57,10 +57,6 @@ function valideUsername(value){
                         console.log('problem first');
                         return false; 
                     }
-                } else {
-                    console.log('problem second');
-                    console.log(xhr.readyState);
-                    return false; 
                 }
             }
         
@@ -128,6 +124,9 @@ function attach_events(){
     const alert_username = document.getElementById("alert_username");
     const username = document.getElementById("login");
     username.addEventListener("change", function(ev){
+        let message = "taken";
+        console.log(checkValide(username, 2, alert_username, message, valideUsername));
+        
         let value = username.value;
         let xhr = new XMLHttpRequest();
         let request = 'https://infinite-hamlet-29399.herokuapp.com/check/' + value;
@@ -142,8 +141,8 @@ function attach_events(){
                         username.className = "alright";
                         everythingAlright[2] = true;
                         if(everythingAlright.every(function(check){return check===true})){
-                    submit.removeAttribute("disabled");
-                }
+                            submit.removeAttribute("disabled");
+                        }
                     } else {
                         alert_username.style.display = "block";
                         username.className = "error";
