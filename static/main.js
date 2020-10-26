@@ -50,14 +50,10 @@ function valideUsername(value){
             if (xhr.readyState == DONE){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
-                    console.log(response);
-                    console.log(value);
-                    console.log(response[value]);
                     if (response[value] === "available"){
-                        console.log('return ok');
                         return true;
-                        }   
-                    else {
+                }   
+                    }else {
                         console.log('problem first');
                         return false; 
                     }
@@ -67,7 +63,7 @@ function valideUsername(value){
                     return false; 
                 }
             }
-        };
+        
         console.log(request);
         xhr.open('GET', request, true);
         xhr.send(null);
