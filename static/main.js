@@ -66,6 +66,7 @@ function valideUsername(value){
                     return false; 
                 }
             }
+        }
         console.log(request);
         xhr.open('GET', request, true);
         xhr.send(null);
