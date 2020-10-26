@@ -114,7 +114,7 @@ function attach_events(){
     const alert_username = document.getElementById("alert_username");
     const username = document.getElementById("login");
     username.addEventListener("change", function(ev){
-        let message = "taken";
+        let message = "Username is taken";
         let value = username.value;
         let xhr = new XMLHttpRequest();
         let request = 'https://infinite-hamlet-29399.herokuapp.com/check/' + value;
@@ -126,26 +126,10 @@ function attach_events(){
                     let response = JSON.parse(xhr.responseText);
                     if (response[value] === "available"){
                         markAlright(username, alert_username, 2);
-                        /*alert_username.style.display = "none";
-                        username.className = "alright";
-                        everythingAlright[2] = true;
-                        if(everythingAlright.every(function(check){return check===true})){
-                            submit.removeAttribute("disabled");
-                        }*/
                     } else {
                         markError(username, alert_username, 2, message);
-                        /*alert_username.style.display = "block";
-                        username.className = "error";
-                        alert_username.innerHTML = "Taken";
-                        everythingAlright[2] = false;
-                        submit.setAttribute("disabled", "");*/
-                        
                     }
-                } else {
-                    alert_username.style.display = "block";
-                    username.className = "Cannot connect";
-                    
-                }
+                } 
             }
         };
         console.log(request);
