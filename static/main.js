@@ -11,23 +11,45 @@ function checkValide(
         message,
         valideFunction){
     if (!valideFunction(element.value)){
-        element.className = "error";
+        /*element.className = "error";
         console.log(element.value + "error");
         alert_element.className = "alert_error";
         alert_element.innerText = message;
         everythingAlright[count] = false;
-        submit.setAttribute("disabled", "");
+        submit.setAttribute("disabled", "");*/
+        markError(element, alert_element, count, message);
     }
     else{
+        /*element.className = "alright";
+        alert_element.className = "alert_alright";
+        everythingAlright[count] = true;
+        if(everythingAlright.every((v) => v === true)){
+            submit.removeAttribute("disabled");
+        }*/
+        markAlright(element, alert_element, count);
+    }
+
+};
+
+function markError(element, alert_element, count, message){
+        element.className = "error";
+        console.log(element.value + " has error");
+        alert_element.className = "alert_error";
+        alert_element.innerText = message;
+        everythingAlright[count] = false;
+        submit.setAttribute("disabled", "");
+
+}
+
+function markAlright(element, alert_element, count) {
         element.className = "alright";
         alert_element.className = "alert_alright";
         everythingAlright[count] = true;
         if(everythingAlright.every((v) => v === true)){
             submit.removeAttribute("disabled");
         }
-    }
 
-};
+}
 
 function valideName(value){
      if (value.length > 40)
@@ -89,14 +111,6 @@ function attach_events(){
     });
    
     
-    /*const alert_username = document.getElementById("alert_username");
-    const username = document.getElementById("login");
-    username.addEventListener("change", function(ev){
-        let message = "Username already taken";
-        checkValide(username, 2, alert_username, message, valideUsername);
-    });*/
-    
-    
     const alert_username = document.getElementById("alert_username");
     const username = document.getElementById("login");
     username.addEventListener("change", function(ev){
@@ -111,20 +125,20 @@ function attach_events(){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
                     if (response[value] === "available"){
-                        let x = true;
-                        //checkValide(username, 2, alert_username, message, function (x) {return x;});
-                        alert_username.style.display = "none";
+                        markAlright(username, alert_username, 2);
+                        /*alert_username.style.display = "none";
                         username.className = "alright";
                         everythingAlright[2] = true;
                         if(everythingAlright.every(function(check){return check===true})){
                             submit.removeAttribute("disabled");
-                        }
+                        }*/
                     } else {
-                        alert_username.style.display = "block";
+                        markError(username, alert_username, 2, message);
+                        /*alert_username.style.display = "block";
                         username.className = "error";
                         alert_username.innerHTML = "Taken";
                         everythingAlright[2] = false;
-                        submit.setAttribute("disabled", "");
+                        submit.setAttribute("disabled", "");*/
                         
                     }
                 } else {
