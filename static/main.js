@@ -11,8 +11,8 @@ function checkValide(
         message,
         valideFunction){
     if (!valideFunction(element.value)){
-        console.log(element.value + "error");
         element.className = "error";
+        console.log(element.value + "error");
         alert_element.className = "alert_error";
         alert_element.innerText = message;
         everythingAlright[count] = false;
@@ -56,10 +56,7 @@ function valideUsername(value){
                         return false;
                         
                     }
-                } else {
-                    return false;
-                    
-                }
+                } 
             }
         };
         
