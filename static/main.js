@@ -51,14 +51,28 @@ function valideUsername(value){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
                     if (response[value] === "available"){
-                        return true;
-                }   
-                    }else {
-                        console.log('problem first');
-                        return false; 
+                        alert_username.style.display = "none";
+                        username.className = "alright";
+                        everythingAlright[2] = true;
+                        if(everythingAlright.every(function(check){return check===true})){
+                            submit.removeAttribute("disabled");
+                        }
+                    } else {
+                        alert_username.style.display = "block";
+                        username.className = "error";
+                        alert_username.innerHTML = "Taken111";
+                        console.log("FUCKYOU");
+                        everythingAlright[2] = false;
+                        submit.setAttribute("disabled", "");
+                        
                     }
+                } else {
+                    alert_username.style.display = "block";
+                    username.className = "Cannot connect";
+                    
                 }
             }
+        };
         
         console.log(request);
         xhr.open('GET', request, true);
