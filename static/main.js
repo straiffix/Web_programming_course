@@ -7,7 +7,7 @@ function attach_events(){
 
     const alert_name = document.getElementById("alert_name");
     
-    const firstname = document.getElementById("textname");
+    const firstname = document.getElementById("firstname");
     firstname.addEventListener("change", function(ev){
         if(!regexLetters.test(firstname.value)){
         firstname.className = "error";
@@ -27,7 +27,7 @@ function attach_events(){
     });
     
     const alert_lastname = document.getElementById("alert_lastname");
-    const lastname = document.getElementById("textlastname");
+    const lastname = document.getElementById("lastname");
     lastname.addEventListener("change", function(ev){
         if(!regexLetters.test(lastname.value)){
         lastname.className = "error";
@@ -48,7 +48,7 @@ function attach_events(){
     
     
     const alert_username = document.getElementById("alert_username");
-    const username = document.getElementById("textusername");
+    const username = document.getElementById("login");
     username.addEventListener("change", function(ev){
         let value = username.value;
         let xhr = new XMLHttpRequest();
@@ -89,8 +89,8 @@ function attach_events(){
     
     const alert_pass2 = document.getElementById("alert_pass2");
     
-    const pass1 = document.getElementById("textpass");
-    const pass2 = document.getElementById("textpass_second");
+    const pass1 = document.getElementById("password");
+    const pass2 = document.getElementById("password_second");
     
     pass2.addEventListener("change", function(ev){
         let originValue = pass1.value;
@@ -116,7 +116,7 @@ function attach_events(){
     
     
     const alert_avatar = document.getElementById("alert_avatar");
-    const avatar = document.getElementById("avatar");
+    const avatar = document.getElementById("photo");
     avatar.addEventListener("change", function(ev){
         let value = avatar.value;
         let extension = value.split('.').pop();
