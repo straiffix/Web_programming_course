@@ -58,6 +58,7 @@ function valideUsername(value){
                         return true;
                         }   
                     else {
+                        console.log('problem first');
                         return false; 
                     }
                 } else {
