@@ -11,7 +11,7 @@ function checkValide(
         message,
         valideFunction){
     if (!valideFunction(element.value)){
-        console.log(element.value);
+        console.log(element.value + "error");
         element.className = "error";
         alert_element.className = "alert_error";
         alert_element.innerText = message;
@@ -67,7 +67,7 @@ function valideUsername(value){
                     return false; 
                 }
             }
-        }
+        };
         console.log(request);
         xhr.open('GET', request, true);
         xhr.send(null);
