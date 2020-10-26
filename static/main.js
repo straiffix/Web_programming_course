@@ -117,11 +117,52 @@ function attach_events(){
     });
    
     
-    const alert_username = document.getElementById("alert_username");
+    /*const alert_username = document.getElementById("alert_username");
     const username = document.getElementById("login");
     username.addEventListener("change", function(ev){
         let message = "Username already taken";
         checkValide(username, 2, alert_username, message, valideUsername);
+    });*/
+    
+    
+    const alert_username = document.getElementById("alert_username");
+    const username = document.getElementById("login");
+    username.addEventListener("change", function(ev){
+        let value = username.value;
+        let xhr = new XMLHttpRequest();
+        let request = 'https://infinite-hamlet-29399.herokuapp.com/check/' + value;
+        xhr.onreadystatechange = function(){
+            let DONE = 4;
+            let OK = 200;
+            if (xhr.readyState == DONE){
+                if(xhr.status == OK){
+                    let response = JSON.parse(xhr.responseText);
+                    if (response[value] === "available"){
+                        alert_username.style.display = "none";
+                        username.className = "alright";
+                        everythingAlright[2] = true;
+                        if(everythingAlright.every(function(check){return check===true})){
+                    submit.removeAttribute("disabled");
+                }
+                    } else {
+                        alert_username.style.display = "block";
+                        username.className = "error";
+                        alert_username.innerHTML = "Taken";
+                        everythingAlright[2] = false;
+                        submit.setAttribute("disabled", "");
+                        
+                    }
+                } else {
+                    alert_username.style.display = "block";
+                    username.className = "Cannot connect";
+                    
+                }
+            }
+        };
+        console.log(request);
+        xhr.open('GET', request, true);
+        xhr.send(null);
+        
     });
     
     everythingAlright[3] = true;
