@@ -1,4 +1,4 @@
-const everythingAlright = new Array(6).fill(false);
+const everythingAlright = new Array(7).fill(false);
 const regexLettersSmall = /^[a-z]+$/;
 const regexLettersBig = /^[A-Z]+$/;
 const submit = document.getElementById("submit");
@@ -11,21 +11,9 @@ function checkValide(
         message,
         valideFunction){
     if (!valideFunction(element.value)){
-        /*element.className = "error";
-        console.log(element.value + "error");
-        alert_element.className = "alert_error";
-        alert_element.innerText = message;
-        everythingAlright[count] = false;
-        submit.setAttribute("disabled", "");*/
         markError(element, alert_element, count, message);
     }
     else{
-        /*element.className = "alright";
-        alert_element.className = "alert_alright";
-        everythingAlright[count] = true;
-        if(everythingAlright.every((v) => v === true)){
-            submit.removeAttribute("disabled");
-        }*/
         markAlright(element, alert_element, count);
     }
 
