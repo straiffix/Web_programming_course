@@ -112,13 +112,13 @@ function attach_events(){
                     let response = JSON.parse(xhr.responseText);
                     if (response[value] === "available"){
                         let x = true;
-                        checkValide(username, 2, alert_username, message, function (x) {return x;});
-                        /*alert_username.style.display = "none";
+                        //checkValide(username, 2, alert_username, message, function (x) {return x;});
+                        alert_username.style.display = "none";
                         username.className = "alright";
                         everythingAlright[2] = true;
                         if(everythingAlright.every(function(check){return check===true})){
                             submit.removeAttribute("disabled");
-                        }*/
+                        }
                     } else {
                         alert_username.style.display = "block";
                         username.className = "error";
