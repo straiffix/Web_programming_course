@@ -57,7 +57,7 @@ function valideUsername(value){
                         console.log('return ok');
                         return true;
                         }   
-                    } else {
+                    else {
                         return false; 
                     }
                 } else {
