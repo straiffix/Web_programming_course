@@ -51,14 +51,11 @@ function valideUsername(value){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
                     console.log(response);
-                    if (!regexLettersSmall.test(value) || value.length < 3 || value.length > 40)
-                        return false;
                     if (response[value] === "available"){
                         return true;
-                }
+                        }   
                     } else {
-                        return false;
-                        
+                        return false; 
                     }
                 } else {
                     return false;
