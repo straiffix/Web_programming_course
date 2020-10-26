@@ -54,14 +54,15 @@ function valideUsername(value){
                     console.log(value);
                     console.log(response[value]);
                     if (response[value] === "available"){
+                        console.log('return ok');
                         return true;
                         }   
                     } else {
-                        console.log('problem first');
                         return false; 
                     }
                 } else {
                     console.log('problem second');
+                    console.log(xhr.readyState);
                     return false; 
                 }
             }
