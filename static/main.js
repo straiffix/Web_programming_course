@@ -51,15 +51,18 @@ function valideUsername(value){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
                     console.log(response);
+                    console.log(value);
+                    console.log(response[value]);
                     if (response[value] === "available"){
                         return true;
                         }   
                     } else {
+                        console.log('problem first');
                         return false; 
                     }
                 } else {
-                    return false;
-                    
+                    console.log('problem second');
+                    return false; 
                 }
             }
         console.log(request);
