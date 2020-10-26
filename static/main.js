@@ -1,6 +1,15 @@
+/*function checkValide(
+        element;
+        alert_element;
+        valideFunction;){
+    if valideFunction(element)    
+
+}*/
+
+
 function attach_events(){
 
-    const everythingAlright = new Array(6).fill(true);
+    const everythingAlright = new Array(6).fill(false);
     const submit = document.getElementById("submit");
     const regexLetters = /^[a-zA-Z]+$/;
     
@@ -103,7 +112,7 @@ function attach_events(){
             submit.setAttribute("disabled", "");
         } else {
             alert_pass2.style.display = "none";
-            alert_pass2.className = "alright";
+            pass2.className = "alright";
             everythingAlright[4] = true;
             if(everythingAlright.every(function(check){return check===true})){
                     submit.removeAttribute("disabled");
