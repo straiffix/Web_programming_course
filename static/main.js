@@ -11,7 +11,7 @@ function checkValide(
         message,
         valideFunction){
     if (!valideFunction(element.value)){
-        
+        console.log(element.value);
         element.className = "error";
         alert_element.className = "alert_error";
         alert_element.innerText = message;
@@ -104,7 +104,6 @@ function valideAvatar(value){
 
 function attach_events(){
 
-    everythingAlright[3] = true;
 
     const alert_name = document.getElementById("alert_name");
     const firstname = document.getElementById("firstname");
@@ -126,10 +125,6 @@ function attach_events(){
     const username = document.getElementById("login");
     username.addEventListener("change", function(ev){
         let message = "Username already taken";
-        if (!regexLettersSmall.test(username.value))
-            message = "Username should contain only small letters"
-        if(username.value.length < 3)
-            message = "Short username"
         checkValide(username, 2, alert_username, message, valideUsername);
     });
     
