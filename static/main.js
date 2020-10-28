@@ -1,21 +1,18 @@
 const everythingAlright = new Array(7).fill(false);
-const regexLettersSmall = /^[a-z]+$/;
-const regexLettersBig = /^[A-Z]+$/;
+const regexLettersSmall = /^[a-ząćęłńóśźż]+$/;
+const regexLettersSmallLatin = /^[a-z]+$/;
+const regexLettersBig = /^[A-ZĄĆĘŁŃÓŚŹŻ]+$/;
 const submit = document.getElementById("submit");
+const PL = 'ĄĆĘŁŃÓŚŹŻ';
+const pl = 'ąćęłńóśźż';
 var originValue = null;
 
-function checkValide(
-        element,
-        count,
-        alert_element,
-        message,
-        valideFunction){
+function checkValide(element, count, alert_element, message, valideFunction){
     if (!valideFunction(element.value)){
         markError(element, alert_element, count, message);
     } else {
         markAlright(element, alert_element, count);
     }
-
 };
 
 function markError(element, alert_element, count, message){
@@ -55,6 +52,10 @@ function valideGender(value){
         return false;
     }
 };
+
+function valideLogin(value){
+    return value.length > 3 && value.length < 12 && regexLettersSmallLatin.test(value);
+}
 
 function validePassword(value){
     return ((value.length >= 8) && (value.length <=40)) ? true : false;
@@ -109,7 +110,7 @@ function attach_events(){
             if (xhr.readyState == DONE){
                 if(xhr.status == OK){
                     let response = JSON.parse(xhr.responseText);
-                    if (response[value] === "available"){
+                    if ((response[value] === "available") && valideLogin(value) ){
                         markAlright(username, alert_username, 2);
                     } else {
                         markError(username, alert_username, 2, message);
@@ -129,17 +130,20 @@ function attach_events(){
     const pass1 = document.getElementById("password");
     pass1.addEventListener("change", function(ev){
         originValue = pass1.value;
-        let message = "Password should contain at least 8 symbols and less than 40";
-        checkValide(pass1, 4, alert_pass, message, validePassword); 
+        let messageFirst = "Password should contain at least 8 symbols and less than 40";
+        let messageSecond = "Password does not match"
+        checkValide(pass1, 4, alert_pass, messageFirst, validePassword); 
+        checkValide(pass2, 5, alert_pass2, messageSecond, valideSecondPassword)
     });
     
     const alert_pass2 = document.getElementById("alert_pass2");
     const pass2 = document.getElementById("password_second");
     pass2.addEventListener("change", function(ev){
-        var originValue = pass1.value;
+        originValue = pass1.value;
         let message = "Password does not match";
         checkValide(pass2, 5, alert_pass2, message, valideSecondPassword);
     });
+    // Synchronize both passwords
     
     
     const alert_avatar = document.getElementById("alert_avatar");
