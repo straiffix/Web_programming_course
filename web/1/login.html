@@ -1,0 +1,56 @@
+<!doctype>
+<html>
+    <head>
+        <!--<script src="/static/main.js" defer></script>-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    </head>
+    <body>
+    
+        <header>
+            <h3>Parcel tracker, hard as a nutcracker</h3>
+        </header>
+        
+        
+        
+        <div class = "navbar">
+            <a href="/">Main page</a> 
+        	    <a href="/sender/sign_up">Sign up</a>
+            <a class="active" href="/sender/login">Login</a>
+        	    <a href="/sender/logout">Logout</a>
+        </div>
+    
+        <section>
+            <form method="POST" action="/sender/login" method="POST">
+        <ul>
+            <li><input type="text" id = "username" name="username" placeholder="Username"/></li>
+            <li><input type="password" id = "password" name="password" placeholder="Password"/></li>
+            <li><input type="submit" id = "submit" name= "submit" placeholder="Submit"/></li>      
+        </ul>
+        </form>
+        
+        </section>
+
+	 {% with messages = get_flashed_messages() %}
+                 {% if messages %}
+                         <ul class=flashes>
+                                 {% for message in messages %}
+                                         <li>{{ message }}</li>
+                                 {% endfor %}
+                         </ul>
+                 {% endif %}
+         {% endwith %}
+
+         {% block content %}
+         {% endblock %}
+
+
+        
+        <footer>
+            Marharyta Kruk, semester 7, see project on <a href="https://github.com/straiffix/Web_programming_course"> github page</a>
+        </footer>
+    
+    
+        
+    </body>
+</html>

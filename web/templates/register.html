@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+
+{% block header %}
+<script src="/static/main.js" defer></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<form method="POST" action="/sender/sign_up" enctype="multipart/form-data">
+        <ul>
+            <li><input type="text" id = "firstname" name="firstname" placeholder="Name"/></li>
+            <p id="alert_name" hidden></p>
+            <li><input type="text" id = "lastname" name="lastname" placeholder="Surname"/></li>
+            <p id="alert_lastname" hidden></p>
+            <li><input type="text" id = "email" name="email" placeholder="E-mail"/></li>
+            <p id="alert_email" hidden></p>
+            <li><input type="text" id = "username" name="username" placeholder="Username"/></li>
+            <p id="alert_username" hidden></p>
+            <li><input type="text" id = "address" name="address" placeholder="Address"/></li>
+            <p id="alert_address" hidden></p>
+            <li><input type="password" id = "password" name="password" placeholder="Password"/></li>
+            <p id="alert_pass" hidden></p>
+            <li><input type="password" id = "password_second" name="password_second" placeholder="Repeat password"/></li>
+            <p id="alert_pass2" hidden></p>
+             <li><input type="submit" id = "submit" name= "submit" placeholder="Submit" disabled/></li>      
+        </ul>
+        </form>
+        
+
+{% endblock %}

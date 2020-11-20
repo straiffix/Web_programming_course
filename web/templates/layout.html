@@ -1,0 +1,47 @@
+<!doctype>
+<html>
+    <head>
+        <!--<script src="/static/main.js" defer></script>-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+        {% block header %}{% endblock %}
+    </head>
+    <body>
+        <header>
+        <h3>Parcel tracker, hard as a nutcracker</h3>
+        
+        </header>
+        
+        <div class = "navbar">
+            <a class="active" href="/">Home page</a>
+            {% if not g.user %}
+            <a href="/sender/sign_up">Sign up</a>
+    	        <a href="/sender/login">Login</a>
+    	        {% endif %}
+    	        {% if g.user %}
+    	        <a href="/sender/packages">Packages</a>
+    	        <a href="/sender/create_package">Create package</a>
+    	        <a href="/user/profile">Profile</a>
+        	    <a href="/sender/logout">Logout</a>        	    
+        	    {% endif %}
+        </div>
+       
+        <section>
+    {% with messages = get_flashed_messages() %}
+                 {% if messages %}
+                         <ul class=flashes>
+                                 {% for message in messages %}
+                                         <li>{{ message }}</li>
+                                 {% endfor %}
+                         </ul>
+                 {% endif %}
+         {% endwith %}
+    
+    {% block content %}
+    {% endblock %}
+        </section>
+        
+        <footer>
+            2020, Marharyta Kruk, semester 7, see project on <a href="https://github.com/straiffix/Web_programming_course"> github</a>
+        </footer>
+    </body>
+</html>

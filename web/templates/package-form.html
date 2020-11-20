@@ -1,0 +1,30 @@
+
+{% extends 'layout.html' %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+{% endblock %}
+
+{% with messages = get_flashed_messages() %}
+                 {% if messages %}
+                         <ul class=flashes>
+                                 {% for message in messages %}
+                                         <li>{{ message }}</li>
+                                 {% endfor %}
+                         </ul>
+                 {% endif %}
+         {% endwith %}
+
+{% block content %}
+
+<form method="POST" action="/sender/create_package" target = "/sender/sender_packages" method="POST">
+        <ul>
+            <li><input type="text" id = "pckgn" name="pckgn" placeholder="Package name"/></li>
+            <li><input type="text" id = "pckgw" name="pckgw" placeholder="Package weight"/></li>
+            <li><input type="text" id = "pckgcell" name="pckgcell" placeholder="Post cell id"/></li>
+            <li><input type="submit" id = "submit" name= "submit" placeholder="Submit"/></li>      
+        </ul>
+        </form>
+        
+
+{% endblock %}
