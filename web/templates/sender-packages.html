@@ -1,15 +1,16 @@
 {% extends 'layout.html' %}
 
 {% block header %}
-
+<link rel="stylesheet" href="{{ url_for('static', filename='packages.css') }}">
 {% endblock %}
 
 
 
 
 {% block content %}
-
-<form method="POST" action="/sender/packages" target = "_self" method="POST">
+<div class = 'container'>
+<div class = 'create_package_form'><form method="POST" action="/sender/packages" target = "_self" method="POST">
+        <h3>Add package</h3>
         <ul>
             <li><input type="text" id = "pckgn" name="pckgn" placeholder="Package name"/></li>
             <li><input type="text" id = "pckgw" name="pckgw" placeholder="Package weight"/></li>
@@ -17,25 +18,28 @@
             <li><input type="submit" id = "submit" name= "submit" placeholder="Submit"/></li>      
         </ul>
         </form>
+</div>
 
-{% with messages = get_flashed_messages() %}
-                 {% if messages %}
-                         <ul class=flashes>
-                                 {% for message in messages %}
-                                         <li>{{ message }}</li>
-                                 {% endfor %}
-                         </ul>
-                 {% endif %}
-         {% endwith %}
+<div class = 'remove_package_form'><form method="POST" action="/sender/packages" target = "_self" method="POST">
+        <h3>Remove package</h3>
+        <ul>
+            <li><input type="text" id = "pckid" name="pckgid" placeholder="Package id"/></li>
+            <li><input type="submit" id = "submit" name= "submit" placeholder="Submit"/></li>      
+        </ul>
+        </form>
+</div>
 
 {% if not haspackages %}
-		Nie masz paczek
+		<h3>You don't have any packages</h3>
 	{% else %}
+    	<div class = 'packages_list'>
+        	<h3>List of packages</h3>
 		<ol>
 		{% for package, token in tokens.items() %}
 			<li><a href="/package/{{ package }}?token={{ token }}"> {{ package }} </a></li>
 		{% endfor %}
 		</ol>
+    </div>
 	{% endif %}
-
+</div>
 {% endblock %}

@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, make_response
 from flask import session, flash, url_for, redirect, g
 from flask_session import Session
 from jwt import encode, decode
+import atexit
 #from redis import StrictRedis
 from utils_db import db, is_user, save_user, delete_user, verify_user, get_user
 
@@ -56,13 +57,17 @@ def error(msg, status=400):
 @app.route('/check/<username>', methods=["GET"])
 def check(username):
     #origin = request.headers.get('Origin')
-    referer_allowed = 'http://localhost:5000/sender/sign_up'
+    referer_allowed = ['http://localhost:5000/sender/sign_up', 'http://0.0.0.0:5000/sender/sign_up']
     referer = request.headers.get('Referer')
     result = {username: 'available'}
     if is_user(username):
         result = {username: 'taken'}
     response = make_response(result, 200)
-    if referer is referer_allowed:
+    heroku = referer.split('.')
+    ifheroku = False
+    if 'herokuapp' in heroku:
+        ifheroku = True
+    if referer in referer_allowed or ifheroku is True:
         response.headers['Access-Control-Allow-Origin'] = referer
     return response
    
@@ -119,6 +124,8 @@ def login_form():
 
 @app.route('/session', methods=['GET'])
 def session_view():
+    ck = request.cookies.get('app_session')
+    print(ck)
     if "username" in session:
         return str(session["username"]) + " " + str(session['logged-in'] + " " + str(session))
     
@@ -148,22 +155,31 @@ def login():
     session[username] = "logged-in"
     session['logged-in'] = datetime.now().ctime()
     #ANother way to make session
-    response = make_response(render_template("index.html"))
-    response.set_cookie("sess_id", username,
-                            max_age=30, secure=True, httponly=True)
+    #response = make_response(render_template("index.html"))
+    #response.set_cookie("sess_id", username,
+    #                       max_age=30, secure=True, httponly=True)
     #print(generate_tracking_token("dead-beef", username)) 
-    #return redirect(url_for('index'))
-    return response
+    return redirect(url_for('index'))
+    #return response
 
-@app.route('/sender/logout', methods = ['GET'])
-def logout():
+@app.route('/logout1', methods = ['GET'])
+def logout1():
+    sess = request.cookies.get('app_session')
     session.clear()
-    return redirect("/", code=302)
+    g.user = None
+    db.delete(f"session:{sess}")
+    resp = make_response(render_template('index.html'))
+    resp.set_cookie('app_session', '') 
+    
+    return resp
 
 @app.route('/logout', methods = ['GET'])
-def logout1():
+def logout():
+    sess = request.cookies.get('app_session')
     session.clear()
-    return make_response("clear", 200)
+    g.user = None
+    db.delete(f"session:{sess}")
+    return make_response(render_template('index.html'))
    
 @app.before_request
 def get_logged_username():
@@ -185,21 +201,26 @@ def create_package():
     pckg_name = request.form.get("pckgn")
     pckg_weight = request.form.get("pckgw")
     cell_id = request.form.get("pckgcell")
+    remove_package = request.form.get('pckgid')
+    if (pckg_name is not None and pckg_name != "") and (pckg_weight is not None and pckg_weight != "") and (cell_id is not None and cell_id != ""):
     #print(pckg_name, pckg_weight, cell_id)
-    pckg_id = str(uuid.uuid4())
-    while db.get(f"{username}:{pckg_id}") is not None:
         pckg_id = str(uuid.uuid4())
-    db.hset(f"{username}:{pckg_id}", "pckg_name", pckg_name.encode())
-    db.hset(f"{username}:{pckg_id}", "pckg_weight", pckg_weight.encode())
-    db.hset(f"{username}:{pckg_id}", "cell_id", cell_id.encode())
-    db.lpush(f"{username}:packages", pckg_id.encode())
-    flash('Created')
+        while db.get(f"{username}:{pckg_id}") is not None:
+            pckg_id = str(uuid.uuid4())
+        db.hset(f"{username}:{pckg_id}", "pckg_name", pckg_name.encode())
+        db.hset(f"{username}:{pckg_id}", "pckg_weight", pckg_weight.encode())
+        db.hset(f"{username}:{pckg_id}", "cell_id", cell_id.encode())
+        db.lpush(f"{username}:packages", pckg_id.encode())
+        flash('Created')
+    elif remove_package is None:
+        flash('Empty fields')
+    if remove_package is not None:
+        delete_package(remove_package)
     return redirect('/sender/packages', 302)
 
 def delete_package(pid):
     db.delete(f'{g.user}:{pid}')
     db.lrem(f'{g.user}:packages', 0, pid.encode())
-
 
 
 @app.route('/sender/packages', methods=["GET"])
@@ -209,8 +230,6 @@ def sender_packages_list():
     user = g.user
     new_packages = db.lrange(f'{user}:packages', 0, db.llen(f'{user}:packages'))
     packages = [item.decode() for item in new_packages]
-    #print(new_packages)
-    #packages = ['49r029', '23e2ed', '23edw3', '6t5sdf']
     tokens = {}
     for package  in packages:
         tokens[package] = generate_tracking_token(package, session['username']).decode()
@@ -236,4 +255,7 @@ def get_package(pid):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    atexit.register(logout)
+    app.run(host="0.0.0.0", port=5000)    
+    
+    

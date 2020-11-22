@@ -104,7 +104,10 @@ function attach_events(){
         let message = "Username is taken";
         let value = username.value;
         let xhr = new XMLHttpRequest();
-        let request = 'http://localhost:5000/check/' + value;
+        let request = 'http://0.0.0.0:5000/check/' + value;
+        if (window.location.href.split('/')[2] == '0.0.0.0:5000'){
+            let request = 'http://0.0.0.0:5000/check/' + value;
+            }
         xhr.onreadystatechange = function(){
             let DONE = 4;
             let OK = 200;
