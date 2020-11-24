@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='packages.css') }}">
+{% endblock %}
+
+
+
+
+{% block content %}
+<div class = 'container'>
+
+    	<div class = 'package'>
+        	<h3>Package</h3>
+		<ol>
+		{% for value in package %}
+			<li>{{ value }}</li>
+		{% endfor %}
+		</ol>
+    </div>
+
+</div>
+{% endblock %}

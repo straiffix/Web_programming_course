@@ -4,7 +4,12 @@ from flask_session import Session
 from jwt import encode, decode
 import atexit
 #from redis import StrictRedis
-from utils_db import db, is_user, save_user, delete_user, verify_user, get_user
+
+
+import sys
+
+from redis import StrictRedis, ConnectionError
+from bcrypt import hashpw, gensalt, checkpw
 
 from datetime import datetime, timedelta
 
@@ -15,6 +20,12 @@ load_dotenv()
 SESSION_TYPE='redis' #filesystem
 SESSION_COOKIE_NAME = "app_session"
 SESSION_PERMANENT = False
+
+
+REDIS_HOST = getenv("REDIS_HOST")
+REDIS_PASS = getenv("REDIS_PASS")
+#print(REDIS_HOST, REDIS_PASS)
+db = StrictRedis(REDIS_HOST, db=4, password=REDIS_PASS)
 
 #Not neccessary
 #SESSION_COOKIE_HTTPONLY = True
@@ -30,7 +41,44 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.secret_key = getenv('SECRET_KEY')
 ses = Session(app)
-allowed_origins = ['localhost', 'http://localhost:5000']
+allowed_origins = ['http://0.0.0.0:5000', 'http://0.0.0.0:8000', 'localhost', 'http://localhost:5000']
+
+
+
+
+def is_user(username):
+    return db.hexists(f"user:{username}", "password")
+
+def save_user(username, password, name, lastname, email, address):
+    salt = gensalt(5)
+    password = password.encode()
+    hashed = hashpw(password, salt)
+    db.hset(f"user:{username}", "password", hashed)
+    db.hset(f"user:{username}", "name", name)
+    db.hset(f"user:{username}", "lastname", lastname)
+    db.hset(f"user:{username}", "email", email)
+    db.hset(f"user:{username}", "address", address)
+    return True
+
+def delete_user(username):
+    return db.delete(f"user:{username}")
+
+def get_user(username):
+    user = {'username' : username,
+            'name' : db.hget(f"user:{username}", "name").decode(),
+            'last name': db.hget(f"user:{username}", "lastname").decode(),
+            'email' : db.hget(f"user:{username}", "email").decode(),
+            'address' : db.hget(f"user:{username}", "address").decode()
+        }
+    return user
+    
+def verify_user(username, password):
+    password = password.encode()
+    hashed = db.hget(f"user:{username}", "password")
+    if not hashed:
+        print("ERROR")
+        return False
+    return checkpw(password, hashed)
 
 
 def generate_tracking_token(package, user):
@@ -113,7 +161,8 @@ def register():
 @app.route('/user/profile', methods= ["GET"])
 def get_profile():
     if g.user is not None:
-        return make_response(get_user(g.user), 200)
+        #return make_response(get_user(g.user), 200)
+        return render_template('profile.html', user = g.user)
     else:
         return make_response('Not authorized', 401)
 
@@ -150,17 +199,18 @@ def login():
     
     print("ok")
     flash(f"Welcome {username}!")
-
     session['username'] = username
     session[username] = "logged-in"
     session['logged-in'] = datetime.now().ctime()
     #ANother way to make session
-    #response = make_response(render_template("index.html"))
+    response = make_response(redirect(url_for('index')))
     #response.set_cookie("sess_id", username,
     #                       max_age=30, secure=True, httponly=True)
+    response.headers['Cache-Control']= 'private'
+    response.headers['Vary'] = 'Cookie'
     #print(generate_tracking_token("dead-beef", username)) 
-    return redirect(url_for('index'))
-    #return response
+    #return redirect(url_for('index'))
+    return response
 
 @app.route('/logout1', methods = ['GET'])
 def logout1():
@@ -251,7 +301,8 @@ def get_package(pid):
         return 'Not aurhotized', 401
     package = db.hvals(f'{g.user}:{pid}')
     package = [item.decode() for item in package]
-    return str(package), 200
+    #return str(package), 200
+    return render_template("packages.html", package = package)
 
 
 if __name__ == "__main__":

@@ -105,9 +105,12 @@ function attach_events(){
         let value = username.value;
         let xhr = new XMLHttpRequest();
         let request = 'http://0.0.0.0:5000/check/' + value;
-        if (window.location.href.split('/')[2] == '0.0.0.0:5000'){
-            let request = 'http://0.0.0.0:5000/check/' + value;
+        if (window.location.href.split('/')[2] == 'localhost:5000'){
+            request = 'http://localhost/check/' + value;
             }
+	if (window.location.href.split('/')[2] == "0.0.0.0:8000"){
+		request = "http://0.0.0.0:8000/check/" + value;	
+	}
         xhr.onreadystatechange = function(){
             let DONE = 4;
             let OK = 200;
