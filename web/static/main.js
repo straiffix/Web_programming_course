@@ -111,6 +111,10 @@ function attach_events(){
 	if (window.location.href.split('/')[2] == "0.0.0.0:8000"){
 		request = "http://0.0.0.0:8000/check/" + value;	
 	}
+	
+	if(window.location.href.split(".")[1] == 'herokuapp'){
+        request = window.location.href.split(".")[0] + "." + window.location.href.split(".")[1] + ".com/check/" + value
+	}
         xhr.onreadystatechange = function(){
             let DONE = 4;
             let OK = 200;

@@ -1,0 +1,10 @@
+Flask 
+python-dotenv
+flask-session
+redis
+gunicorn
+bcrypt
+jwt
+PyJWT
+flask_hal
+requests

@@ -1,0 +1,3 @@
+Aplikacja kurierska - interaktywna aplikacja w konsoli client.py
+Aplikacja nadawcy oraz API są na heroku https://krukm-web-app.herokuapp.com/
+Korzystam z bazy danych w chmurze na 4 instancji.  
