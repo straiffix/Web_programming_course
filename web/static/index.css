@@ -4,27 +4,37 @@
 
 }*/
 
-img {
-    width: 100%;
-    height: 100%;
-}
-
-.img-header {
-    width: 30%;
-    height: 200px;
-}
 
 header {
   
   padding: 60px;
   text-align: center;
-  background: #1abc9c;
+  background: #4FCBE5;
   color: white;
   font-size: 30px;
+  margin: auto;
+  width: 78%;
+}
+
+img {
+    display: inline;
+}
+
+.header-row {   
+    display: flex;
+    margin: auto;
+    width: 50%
+}
+
+.header-column{
+    margin: auto;
+    padding: 5px;
 }
 
 section{
     padding: 60px;
+    margin: auto;
+    width: 78%;
 
 }
 
@@ -34,17 +44,18 @@ footer {
   bottom: 0;
   padding: 10px;
   width: 100%;
-  background-color: #1abc9c;
+  background-color: #4FCBE5;
   color: white;
   text-align: center;
 }
-
 
 
 /* Add a black background color to the top navigation */
 .navbar{
   background-color: #333;
   overflow: hidden;
+  margin: auto;
+  width: 80%;
 }
 
 /* Style the links inside the navigation bar */

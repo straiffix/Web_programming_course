@@ -8,26 +8,34 @@
 
 
 {% block content %}
-<div class = 'container'>
-<div class = 'create_package_form'><form method="POST" action="/sender/packages" target = "_self" method="POST">
-        <h3>Add package</h3>
-        <ul>
-            <li><input type="text" id = "pckgn" name="pckgn" placeholder="Package name"/></li>
-            <li><input type="text" id = "pckgw" name="pckgw" placeholder="Package weight"/></li>
-            <li><input type="text" id = "pckgcell" name="pckgcell" placeholder="Post cell id"/></li>
-            <li><input type="submit" id = "submit" name= "submit" placeholder="Submit"/></li>      
-        </ul>
+<div class = "packages-row">
+
+<div class= "form-container">
+<div class="card border-info mb-3" style="max-width: 20rem;">
+<form method="POST" action="/sender/packages" target = "_self" method="POST">
+        <h4 class="card-header">Add package</h4>
+        <fieldset>
+            <input type="text" class = "form-control" id = "pckgn" name="pckgn" placeholder="Package name"/>
+            <input type="text" class = "form-control" id = "pckgw" name="pckgw" placeholder="Package weight"/>
+            <input type="text" class = "form-control" id = "pckgcell" name="pckgcell" placeholder="Post cell id"/>
+            <input type="submit" class = "btn btn-primary" id = "submit" name= "submit" placeholder="Submit"/> 
+        </fieldset>
+        </div>
         </form>
 </div>
 
-<div class = 'remove_package_form'><form method="POST" action="/sender/packages" target = "_self" method="POST">
-        <h3>Remove package</h3>
-        <ul>
-            <li><input type="text" id = "pckid" name="pckgid" placeholder="Package id"/></li>
-            <li><input type="submit" id = "submit" name= "submit" placeholder="Submit"/></li>      
-        </ul>
+<div class="card border-info mb-3" style="max-width: 20rem;">
+<form method="POST" action="/sender/packages" target = "_self" method="POST">
+        <h4 class="card-header">Remove package</h4>
+        <fieldset>
+            <input type="text" class = "form-control" id = "pckid" name="pckgid" placeholder="Package id"/>
+            <input type="submit" class = "btn btn-primary" id = "submit" name= "submit" placeholder="Submit"/>    
+        </fieldset>
         </form>
 </div>
+</div>
+
+<div class = "packages-table">
 
 {% if not haspackages %}
 		<h3>You don't have any packages</h3>
@@ -41,5 +49,6 @@
 		</ol>
     </div>
 	{% endif %}
+</div>
 </div>
 {% endblock %}

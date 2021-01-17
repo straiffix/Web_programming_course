@@ -6,11 +6,13 @@ from flask_hal.link import Link
 from flask_session import Session
 from functools import wraps
 import requests
-from jwt import encode, decode, InvalidTokenError, ExpiredSignatureError
+import jwt
+from jwt import encode, decode, InvalidTokenError, ExpiredSignatureError, ExpiredSignatureError
 import atexit
 import json
 #from redis import StrictRedis
 
+from authlib.integrations.flask_client import OAuth
 
 import sys
 
@@ -21,6 +23,7 @@ from datetime import datetime, timedelta
 
 from os import getenv
 from dotenv import load_dotenv
+from six.moves.urllib.request import urlopen
 
 load_dotenv()
 SESSION_TYPE='redis' #filesystem
@@ -52,6 +55,90 @@ ses = Session(app)
 allowed_origins = ['http://0.0.0.0:5000', 'http://0.0.0.0:8000', 'localhost', 'http://localhost:5000']
 
 
+
+#AUTH0
+
+AUTH0_CALLBACK_URL = getenv('AUTH0_CALLBACK_URL')
+AUTH0_CLIENT_ID = getenv('AUTH0_CLIENT_ID')
+AUTH0_CLIENT_SECRET = getenv('AUTH0_CLIENT_SECRET')
+AUTH0_DOMAIN = getenv('AUTH0_DOMAIN')
+AUTH0_BASE_URL = 'https://' + AUTH0_DOMAIN
+AUTH0_AUDIENCE = getenv('AUTH0_AUDIENCE')
+API_IDENTIFIER = getenv('API_IDENTIFIER')
+
+
+oauth = OAuth(app)
+
+auth0 = oauth.register(
+    'auth0',
+    client_id=AUTH0_CLIENT_ID,
+    client_secret=AUTH0_CLIENT_SECRET,
+    api_base_url=AUTH0_BASE_URL,
+    access_token_url=AUTH0_BASE_URL + '/oauth/token',
+    authorize_url=AUTH0_BASE_URL + '/authorize',
+    client_kwargs={
+        'scope': 'openid profile email',
+    },
+)
+
+
+class AuthError(Exception):
+    def __init__(self, error, status_code):
+        self.error = error
+        self.status_code = status_code
+
+from jose import jwt
+def verify_auth_token(token):
+        jsonurl = urlopen("https://"+AUTH0_DOMAIN+"/.well-known/jwks.json")
+        jwks = json.loads(jsonurl.read())
+        try:
+            unverified_header = jwt.get_unverified_header(token)
+        except Exception as e:
+            raise AuthError({"code": "invalid_header",
+                            "description":
+                                "Invalid header. "
+                                "Use an RS256 signed JWT Access Token"}, 401)
+        if unverified_header["alg"] == "HS256":
+            raise AuthError({"code": "invalid_header",
+                            "description":
+                                "Invalid header. "
+                                "Use an RS256 signed JWT Access Token"}, 401)
+        rsa_key = {}
+        for key in jwks["keys"]:
+            if key["kid"] == unverified_header["kid"]:
+                rsa_key = {
+                    "kty": key["kty"],
+                    "kid": key["kid"],
+                    "use": key["use"],
+                    "n": key["n"],
+                    "e": key["e"]
+                }
+        if rsa_key:
+            try:
+                payload = jwt.decode(
+                    token,
+                    rsa_key,
+                    algorithms=["RS256"],
+                    audience=API_IDENTIFIER,
+                    issuer="https://"+AUTH0_DOMAIN+"/"
+                )
+            except ExpiredSignatureError:
+                raise AuthError({"code": "token_expired",
+                                "description": "token is expired"}, 401)
+            except Exception:
+                raise AuthError({"code": "invalid_claims",
+                                "description":
+                                    "incorrect claims,"
+                                    " please check the audience and issuer"}, 401)
+            except Exception:
+                raise AuthError({"code": "invalid_header",
+                                "description":
+                                    "Unable to parse authentication"
+                                    " token."}, 401)
+
+            return True
+        raise AuthError({"code": "invalid_header",
+                        "description": "Unable to find appropriate key"}, 401)
 
 def allowed_methods(methods):
     if 'OPTIONS' not in methods:
@@ -105,7 +192,7 @@ def generate_tracking_token(package, user):
             "usr": user, 
             "aud": "de-liver tracking service",
             "exp": datetime.utcnow() + timedelta(seconds=JWT_EXP)}
-    token = encode(payload, JWT_SECRET, algorithm='HS256' )
+    token = jwt.encode(payload, JWT_SECRET, algorithm='HS256' )
     return token
 
 def generate_autentication_token(user):
@@ -114,10 +201,11 @@ def generate_autentication_token(user):
             "usr": user,
             "aud": "de-liver tracking service",
             "exp": datetime.utcnow() + timedelta(seconds=600)}
-    token = encode(payload, JWT_SECRET, algorithm='HS256' )
+    token = jwt.encode(payload, JWT_SECRET, algorithm='HS256' )
     return token
 
-    
+
+
 #def redirect(url, status=301):
 #    response = make_response('', status)
 #    response.headers['Location'] = url
@@ -133,15 +221,32 @@ def error(msg, status=400):
 @app.route('/api', methods=['OPTIONS', 'GET'])
 def api():
     
+    if_courier = False
+    if_user = False
+    
     token = request.headers.get('Authorization', '').replace('Bearer', '')
     token = token[1:]
+    
+    try:
+        if_courier = verify_auth_token(token)
+        print('Verified Couirer')
+    except Exception as e:
+        print(e, 'Courier Oauth does not working')
+    
     try:
         decoded_token = decode(token.encode(), JWT_SECRET, algorithms=['HS256'], audience="de-liver tracking service")
+        if_user = True
+        print('Verified User')
     except:
-        print('Not authorized!')
-        return {'error' : 'not authorized'}, 401
+        print('Not user')
+        
     
-    user = decoded_token['usr']
+    if if_courier:
+        user = 'Courier'
+    elif if_user:
+        user = decoded_token['usr']
+    else:
+        return {'error' : 'not authorized'}, 401
     
     if token != None:
         links = []
@@ -199,12 +304,14 @@ def packages_all():
              if package_status is None:
                  db.hset(key, "status", "created".encode())
                  package_status = "created"
+                
              data = {'user': user, 'id': pid, 'package_name': package_name, 'package_weight': package_weight, 
                      'package_cellid': package_cellid, 'package_status': package_status}
              link = Link('self', '/api/packages/' + pid)
              status = db.hget(f'parcels:{pid}', 'status') 
              if status:
                  link = Link('parcel:update', '/api/parcels/' + pid)
+                 db.hset(f"{user}:{pid}", "status", status)
              else:
                  link = Link('parcel:create', '/api/parcels/' + pid)
 
@@ -240,6 +347,16 @@ def manage_parcel(pid):
         else:
             db.hset(f'parcels:{pid}', 'status', 'shipped'.encode())
             data['status'] = 'shipped'
+            
+            #Messages
+            message_user = None
+            users = db.lrange('users', 0, db.llen('users'))
+            for user in users:
+                user = user.decode()
+                if db.hexists(f"{user}:{pid}", "status"):
+                    db.rpush(f'messages:{user}', f'Parcel for your package {pid} has been created!')
+                    db.publish('channel:krukm', f'Parcel for your package {pid} has been created!')
+            
             links.append(Link('parcel:update', '/api/parcels/' + pid))
             data['operation_status'] = 'Created'
             
@@ -254,6 +371,16 @@ def manage_parcel(pid):
                 db.hset(f'parcels:{pid}', 'status', next_status.encode())
                 data['operation_status'] = 'updated'
                 data['status'] = next_status
+                
+                #Messages
+                message_user = None
+                users = db.lrange('users', 0, db.llen('users'))
+                for user in users:
+                    user = user.decode()
+                    if db.hexists(f"{user}:{pid}", "status"):
+                        db.rpush(f'messages:{user}', f'Parcel for your package {pid} has been updated! New status is: {next_status}')
+                        db.publish('channel:krukm', f'Parcel for your package {pid} has been updated! New status is: {next_status}')
+                
                 links.append(Link('parcel:update', '/api/parcels/' + pid))
             else:
                 return {'error' : 'Can not execute an action, parcel is on the last stage'}, 403
@@ -278,6 +405,7 @@ def manage_package(pid):
     
     username = decoded_token['usr']
     links = []
+    statuses = ['shipped', 'in transit', 'arrived', 'received', 'created', 'Created']
     
     if request.method == 'OPTIONS':
         return allowed_methods(['OPTIONS', 'GET', 'POST', 'DELETE'])
@@ -296,15 +424,22 @@ def manage_package(pid):
         links.append(Link('self', f'/api/packages/{pid}'))
         print('Package created!')
     if request.method == 'GET':
+        try:
+            status = db.hget(f'parcels:{pid}', 'status')
+            db.hset(f"{username}:{pid}", "status", status)
+            print('change parcel')
+        except:
+             print('nothing')
         if db.get(f"{username}:{pid}") is not None:
-            if db.hget(f'{username}:{pid}', "status").decode() == 'created':
+            
+            if db.hget(f'{username}:{pid}', "status").decode() in statuses:
                 links.append(Link('package:remove', f'/api/packages/{pid}'))
             else:
                 return {'error' : 'Can not execute an action, package does not exist'}, 403
             links.append(Link('self', f'/api/packages/{pid}'))
     if request.method == 'DELETE':
         if db.hexists(f"{username}:{pid}", 'status'):
-            if db.hget(f'{username}:{pid}', 'status').decode() == 'Created':
+            if db.hget(f'{username}:{pid}', 'status').decode() in statuses:
                 db.delete(f'{username}:{pid}')
                 db.lrem(f'{username}:packages', 0, pid.encode())
             else:
@@ -340,8 +475,12 @@ def packages_user(req_user):
              package_cellid = db.hget(key, "cell_id").decode()
              package_status = db.hget(key, "status").decode()
              if package_status is None:
-                 db.hset(key, "status", "Created".encode())
-                 package_status = "Created"
+                 db.hset(key, "status", "created".encode())
+                 package_status = "created"
+             status = db.hget(f'parcels:{pid}', 'status') 
+             if status:
+                 link = Link('parcel:update', '/api/parcels/' + pid)
+                 db.hset(f"{user}:{pid}", "status", status)
              data = {'user': user, 'id': pid, 'package_name': package_name, 'package_weight': package_weight, 
                      'package_cellid': package_cellid, 'package_status': package_status}
              link = Link('self', '/api/packages/' + pid)
@@ -438,36 +577,46 @@ def session_view():
 
 @app.route('/sender/login', methods = ['POST'])
 def login():
-    print(request.headers)
-    username = request.form.get("username")
-    password = request.form.get("password")
+    if "oauth" not in session.keys():
+        print(request.headers)
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        if not username or not password:
+            flash("Missing username and/or password")
+            return redirect(url_for('login_form'))
     
-    if not username or not password:
-        flash("Missing username and/or password")
-        return redirect(url_for('login_form'))
-
-    if not verify_user(username, password):
-        flash("Invalid username and/or password")
-        return redirect(url_for('login_form'))
+        if not verify_user(username, password):
+            flash("Invalid username and/or password")
+            return redirect(url_for('login_form'))
+        
+        print("ok")
+        flash(f"Welcome {username}!")
+        session['username'] = username
+        session[username] = "logged-in"
+        session['logged-in'] = datetime.now().ctime()
+        token = generate_autentication_token(username)
+        session['auth-token'] = token
+        #ANother way to make session
+        response = make_response(redirect(url_for('index')))
+        #response.set_cookie("sess_id", username,
+        #                       max_age=30, secure=True, httponly=True)
     
-    print("ok")
-    flash(f"Welcome {username}!")
-    session['username'] = username
-    session[username] = "logged-in"
-    session['logged-in'] = datetime.now().ctime()
-    session['auth-token'] = generate_autentication_token(username)
-    #ANother way to make session
-    response = make_response(redirect(url_for('index')))
-    #response.set_cookie("sess_id", username,
-    #                       max_age=30, secure=True, httponly=True)
-
-    response.headers['Content-Type'] = 'application/json'
-    response.headers['Cache-Control']= 'private'
-    response.headers['Vary'] = 'Cookie'
-    response.headers['Authorization'] = 'Bearer ' + generate_autentication_token(username).decode()
-    #print(generate_tracking_token("dead-beef", username)) 
-    #return redirect(url_for('index'))
-    return response
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Cache-Control']= 'private'
+        response.headers['Vary'] = 'Cookie'
+        
+        print(username, token, type(token) )
+        try:
+            token = token.decode()
+        except:
+            print("something wring with token formats")
+        response.headers['Authorization'] = 'Bearer ' + token
+        #print(generate_tracking_token("dead-beef", username)) 
+        #return redirect(url_for('index'))
+        return response
+    else: 
+        return redirect(url_for('index'))
 
 @app.route('/logout1', methods = ['GET'])
 def logout1():
@@ -480,9 +629,19 @@ def logout1():
     
     return resp
 
+from six.moves.urllib.parse import urlencode
+
 @app.route('/logout', methods = ['GET'])
 def logout():
     sess = request.cookies.get('app_session')
+    try:
+        if session['oauth'] == 'oauth':
+            print('logout with oauth')
+            session.clear()
+            params = {'returnTo': url_for('index', _external=True), 'client_id': AUTH0_CLIENT_ID}
+            return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
+    except:
+        print("Not oatuh logout")
     session.clear()
     g.user = None
     db.delete(f"session:{sess}")
@@ -490,6 +649,14 @@ def logout():
    
 @app.before_request
 def get_logged_username():
+    if (not 'auth-token' in session):
+        try:
+            header = request.headers.get('data')
+            if 'noti-handler' in header:
+                return redirect(url_for('notifications'))
+        except:
+            pass 
+    
     g.user = session.get('username')
     token = session.get('auth-token')
     try:
@@ -509,10 +676,20 @@ import uuid
 def create_and_delete_package():
     username = g.user
     token = session.get('auth-token')
+    try:
+        decode(token, JWT_SECRET, algorithms=['HS256'], audience="de-liver tracking service")
+    except:
+        return 'Not authorized', 401
     #Get links
+    
+    try:
+        token = token.decode()
+    except:
+        pass
+    
     try:
         api_doc = requests.get(request.url_root[:-1] + '/api', 
-                           headers = {'Authorization': 'Bearer ' + token.decode()}).content.decode()
+                           headers = {'Authorization': 'Bearer ' + token}).content.decode()
     except:
         return 'Can not connect to api', 503
     links = json.loads(api_doc)['_links']
@@ -540,13 +717,13 @@ def create_and_delete_package():
         create_package_link = links['package:create']['href'].format(id = pckg_id)
         print(request.url_root[:-1] + create_package_link)
         requests.post(request.url_root[:-1] + create_package_link, 
-                                    headers = {'Authorization': 'Bearer ' + token.decode(),
+                                    headers = {'Authorization': 'Bearer ' + token,
                                                 'pckg_name': pckg_name,
                                                 'pckg_weight': pckg_weight,
                                                 'cell_id': cell_id})
         
         items = json.loads(requests.post(request.url_root[:-1] + create_package_link, 
-                                    headers = {'Authorization': 'Bearer ' + token.decode(),
+                                    headers = {'Authorization': 'Bearer ' + token,
                                                 'pckg_name': pckg_name,
                                                 'pckg_weight': pckg_weight,
                                                 'cell_id': cell_id}).content.decode())
@@ -557,7 +734,7 @@ def create_and_delete_package():
     if remove_package_pid is not None:
         remove_package_link = links['package:remove']['href'].format(id = remove_package_pid)
         requests.delete(request.url_root[:-1] + remove_package_link, 
-                                    headers = {'Authorization': 'Bearer ' + token.decode()})
+                                    headers = {'Authorization': 'Bearer ' + token})
         flash('Deleted')
     return redirect('/sender/packages', 302)
 
@@ -576,10 +753,15 @@ def sender_packages_list():
     
     token = session.get('auth-token')
     
+    try:
+        token = token.decode()
+    except:
+        pass
+    
     #Get links
     try:
         api_doc = requests.get(request.url_root[:-1] + '/api', 
-                           headers = {'Authorization': 'Bearer ' + token.decode()}).content.decode()
+                           headers = {'Authorization': 'Bearer ' + token}).content.decode()
     except:
         return 'Can not connect to API', 503
     links = json.loads(api_doc)['_links']
@@ -589,7 +771,7 @@ def sender_packages_list():
     
     #Get packages
     items = json.loads(requests.get(request.url_root[:-1] + list_link, 
-                                    headers = {'Authorization': 'Bearer ' + token.decode()}).content.decode())
+                                    headers = {'Authorization': 'Bearer ' + token}).content.decode())
     items_ids = items['_embedded']['items']
     
     api_packages = []
@@ -598,7 +780,10 @@ def sender_packages_list():
     
     tokens = {}
     for package in api_packages:
-        tokens[package] = generate_tracking_token(package, session['username']).decode()
+        try:
+            tokens[package] = generate_tracking_token(package, session['username']).decode()
+        except:
+            tokens[package] = generate_tracking_token(package, session['username'])
     return render_template("sender-packages.html", tokens = tokens, haspackages = (len(tokens) > 0))
     
     
@@ -620,6 +805,127 @@ def get_package(pid):
     #return str(package), 200
     return render_template("packages.html", package = package)
 
+
+@app.route('/oauth_login', methods=["GET", "POST"])
+def oauth_login():
+    return auth0.authorize_redirect(redirect_uri=AUTH0_CALLBACK_URL, audience=AUTH0_AUDIENCE)
+
+@app.route('/callback')
+def callback_handling():
+   
+        
+    auth0.authorize_access_token()
+    resp = auth0.get('userinfo')
+    userinfo = resp.json()
+    
+    username = userinfo["nickname"]
+    email = userinfo["email"]
+    name = userinfo["given_name"]
+    lastname = userinfo["family_name"]
+    response = make_response(redirect(url_for('login')))
+    
+    #If exists, then login
+    if is_user(username):
+        
+        if db.hget(f"user:{username}", "email").decode() == email:
+            #login
+            session['username'] = username
+            session[username] = "logged-in"
+            session['logged-in'] = datetime.now().ctime()
+            session['auth-token'] = generate_autentication_token(username)
+            response = make_response(redirect(url_for('index')))
+            print('Successfully loged')
+        else:
+            print("Wrong matching email and username!")
+    else:
+    #Register otherwise
+        password = str(uuid.uuid4())
+        address = "-"
+        success = save_user(username, password, name, lastname, email, address)
+    
+        if success: 
+            print(f"Registered new user {username}")
+            session['username'] = username
+            session[username] = "logged-in"
+            session['logged-in'] = datetime.now().ctime()
+            session['auth-token'] = generate_autentication_token(username)
+            response = make_response(redirect(url_for('index')))
+            
+        else:
+            return make_response('Unknown error', 402)
+    
+    
+    
+    session['oauth'] = "oauth"
+    print(resp.json())
+    # session[constants.PROFILE_KEY] = {
+    #     'user_id': userinfo['sub'],
+    #     'name': userinfo['name'],
+    #     'picture': userinfo['picture']
+    # }
+    return response
+
+
+
+@app.route('/notifications', methods=['GET', 'POST'])
+def notifications():
+    if g.user is None:
+        return "Not authorized", 401
+    user = g.user
+    
+    return render_template("notifications.html")
+
+
+    
+@app.route('/notif_get', methods=['GET', 'POST'])
+def notif_get():
+    if g.user is None:
+        return "Not authorized", 401
+    user = g.user
+    token = session.get('auth-token')
+    
+    
+    #note = db.lpop(f'messages:{user}' )
+    messages = {}
+    notes = db.lrange(f'messages:{user}', 0, db.llen(f'messages:{user}'))
+    for i, note in enumerate(notes):
+        note = note.decode()
+        messages[f'{i}'] = note
+    
+    if request.method == 'POST':
+        index = json.loads(request.data.decode())['value']
+        print(index)
+        db.lset(f'messages:{user}', index, 'delete')
+        db.lrem(f'messages:{user}', 1, 'delete')
+        
+    
+    # while not note:
+    #     sleep(1)
+    #     notes = db.lrange(f'messages:{user}', 0, db.llen(f'messages:{user}'))
+    #     #print(note)
+    #     if note is not None:
+    #          break
+
+    #print('exit cycle')
+    #print(messages)
+    
+    return messages
+
+    
+     # response = make_response(note, 200)
+    # heroku = referer.split('.')
+    # ifheroku = False
+    # if 'herokuapp' in heroku:
+    #     ifheroku = True
+    # if referer in referer_allowed or ifheroku is True:
+    #     response.headers['Access-Control-Allow-Origin'] = referer        
+    
+    # p = db.pubsub()
+    # p.subscribe(f'channel:{user}')
+    # while messages == []:
+    #     for message in p.listen():
+    #         print(message)
+    #         messages.append(message)
 
 if __name__ == "__main__":
     atexit.register(logout)

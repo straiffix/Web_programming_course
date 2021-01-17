@@ -16,13 +16,20 @@
 
 {% block content %}
 
-<form method="POST" action="/sender/login" method="POST">
+<form method="POST" action="/sender/login">
         <ul>
             <li><input type="text" id = "username" name="username" placeholder="Username"/></li>
             <li><input type="password" id = "password" name="password" placeholder="Password"/></li>
             <li><input type="submit" id = "submit" name= "submit" placeholder="Submit"/></li>      
         </ul>
         </form>
+        
+<form method="POST" action="/oauth_login">
+<ul>
+<li><h2>Login with OAuth2.0</h2></li>
+<li><input type="submit" id= "oauth" name= "oauth" placeholder= "Log in with OAuth 2.0"/></li>
+</ul>
+</form>
         
 
 {% endblock %}

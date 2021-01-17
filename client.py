@@ -30,6 +30,41 @@ import sys
 
 # token = generate_autentication_token('Courier')
 
+load_dotenv()
+AUTH0_DOMAIN = getenv('AUTH0_DOMAIN')
+AUTH0_AUDIENCE = getenv('API_IDENTIFIER')
+AUTH0_COURIER_CLIENT_ID = getenv('AUTH0_COURIER_CLIENT_ID')
+AUTH0_COURIER_CLIENT_SECRET = getenv('AUTH0_COURIER_CLIENT_SECRET')
+AUTH0_COURIER_USERNAME = getenv('AUTH0_COURIER_USERNAME')
+AUTH0_COURIER_PASSWORD = getenv('AUTH0_COURIER_PASSWORD')
+
+import http.client
+
+conn = http.client.HTTPSConnection(AUTH0_DOMAIN)
+
+payload = "{\"client_id\":\"" + AUTH0_COURIER_CLIENT_ID \
+        + "\",\"client_secret\":\"" + AUTH0_COURIER_CLIENT_SECRET \
+        + "\",\"audience\":\"" +  AUTH0_AUDIENCE \
+        + "\",\"grant_type\":\"password\",\"scope\":\"open_id\",\"username\":\"" + AUTH0_COURIER_USERNAME \
+        + "\",\"password\":\"" + AUTH0_COURIER_PASSWORD + "\"}"
+
+headers = { 'content-type': "application/json" }
+
+conn.request("POST", "/oauth/token", payload, headers)
+
+res = conn.getresponse()
+data = res.read().decode('utf-8')
+
+
+auth0_token = json.loads(data)["access_token"]
+
+
+# def send_note(pid, status):
+#     requests.post(api_link + '/notifications',
+#                   headers = {'pid' : pid,
+#                              'note': 'Your package has received new status: ' + status
+#                              })
+
 
 token = b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkZS1saXZlciBhdXRoIHNlcnZlciIsInVzciI6IkNvdXJpZXIiLCJhdWQiOiJkZS1saXZlciB0cmFja2luZyBzZXJ2aWNlIiwiZXhwIjoxNjY4ODIwMDQ2fQ.UiBqIOUi7e3Zm-Gvd8oy3bdpCD0sP6_7pCcvEXWdD5Q'
 #api_link = 'http://0.0.0.0:5000'
@@ -37,8 +72,12 @@ api_link = 'https://krukm-web-app.herokuapp.com'
     
 print('Connecting to the api...')
 try:
+    #Usual token
+    # api_doc = requests.get(api_link + '/api', 
+    #                        headers = {'Authorization': 'Bearer ' + token.decode()}).content.decode()
+    #AUTH0_token
     api_doc = requests.get(api_link + '/api', 
-                           headers = {'Authorization': 'Bearer ' + token.decode()}).content.decode()
+                           headers = {'Authorization': 'Bearer ' + auth0_token}).content.decode()
     print('Connected')
 except:
     print('Can not connect to api')
@@ -80,6 +119,8 @@ while True:
         post_response = json.loads(requests.post(api_link + f'/api/parcels/{package_id}', 
                            headers = {'Authorization': 'Bearer ' + token.decode()}).content.decode())
         print(post_response)
+        if 'status' in post_response:
+            status = post_response['status']
     
     elif option == 'parcel:update':
         #Parcel id is the same as package, if parcel exists
@@ -88,6 +129,9 @@ while True:
         put_response = json.loads(requests.put(api_link + f'/api/parcels/{parcel_id}', 
                            headers = {'Authorization': 'Bearer ' + token.decode()}).content.decode())
         print(put_response)
+        if 'status' in put_response:
+            status = put_response['status']
+            #send_note(package_id, status)
     
     elif option == 'self':
         print('Link is ', links['self']) 

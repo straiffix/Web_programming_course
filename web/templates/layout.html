@@ -3,26 +3,57 @@
     <head>
         <!--<script src="/static/main.js" defer></script>-->
         <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
         {% block header %}{% endblock %}
     </head>
     <body>
         <header>
-        <h3>Parcel tracker, hard as a nutcracker</h3>
+            <div class = "header-row">
+                <div class = "header-column">
+                <img src="https://image.flaticon.com/icons/png/512/99/99204.png" width = "200" height = "200">
+                </div>
+                <div class = "header-column">
+                <h1 class="display-3">Parcel tracker</h3>
+                <blockquote class="blockquote">
+                  <p class="mb-0">hard as a nutcracker</p>
+                </blockquote>
+                </div>
+            <div>
         
         </header>
         
-        <div class = "navbar">
-            <a class="active" href="/">Home page</a>
-            {% if not g.user %}
-            <a href="/sender/sign_up">Sign up</a>
-    	        <a href="/sender/login">Login</a>
-    	        {% endif %}
-    	        {% if g.user %}
-    	        <a href="/sender/packages">Packages</a>
-    	        <a href="/user/profile">Profile</a>
-        	    <a href="/logout">Logout</a>        	    
-        	    {% endif %}
+        <nav class = "navbar navbar-expand-lg navbar-light bg-light">
+        
+         <div class="collapse navbar-collapse" id="navbarColor03">
+            <ul class = "navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home page</a>
+                </li>
+                {% if not g.user %}
+                <li class = "nav-item">
+                    <a class = "nav-link" href="/sender/sign_up">Sign up</a>
+                </li>
+                <li class = "nav-item">
+            	        <a class = "nav-link" href="/sender/login">Login</a>
+        	        </li>
+        	        {% endif %}
+        	        {% if g.user %}
+        	        <li class = "nav-item">
+            	        <a class = "nav-link" href="/sender/packages">Packages</a>
+        	       </li>
+        	       <li class = "nav-item">
+            	       <a class = "nav-link" href="/user/profile">Profile</a>
+        	       </li>
+        	       <li class = "nav-item">
+                	    <a class = "nav-link" href="/logout">Logout</a>    
+            	   </li>    
+            	   <li class = "nav-item">
+                	    <a class = "nav-link" href="/notifications">Notifications</a>    
+            	   </li> 	    
+            	    {% endif %}
+        	    </ul>
         </div>
+       </nav>
        
         <section>
     {% with messages = get_flashed_messages() %}
@@ -37,6 +68,8 @@
     
     {% block content %}
     {% endblock %}
+        <div id='for_mess'>
+        </div>
         </section>
         
         <footer>

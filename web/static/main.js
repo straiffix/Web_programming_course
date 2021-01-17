@@ -111,7 +111,7 @@ function attach_events(){
 	if (window.location.href.split('/')[2] == "0.0.0.0:8000"){
 		request = "http://0.0.0.0:8000/check/" + value;	
 	}
-	
+		
 	if(window.location.href.split(".")[1] == 'herokuapp'){
         request = window.location.href.split(".")[0] + "." + window.location.href.split(".")[1] + ".com/check/" + value
 	}
@@ -168,5 +168,6 @@ function attach_events(){
 
 };
 
-
+submit_button = document.getElementById('submit')
+submit_button.disabled = true;
 attach_events();
